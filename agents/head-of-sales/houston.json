@@ -1,0 +1,76 @@
+{
+  "id": "head-of-sales",
+  "name": "Head of Sales",
+  "description": "Your Head of Sales. I own the playbook — ICP, qualification, pricing stance, objection handbook, deal stages, weekly review, daily brief. I coordinate the other four sales agents through one shared sales-playbook.md I write and keep current.",
+  "icon": "Crown",
+  "category": "business",
+  "author": "Houston Founder Sales",
+  "tags": ["sales", "solo-founder", "playbook", "coordination", "leadership"],
+  "tabs": [
+    { "id": "overview", "label": "Overview", "customComponent": "Dashboard" },
+    { "id": "activity", "label": "Activity", "builtIn": "board", "badge": "activity" },
+    { "id": "job-description", "label": "Job Description", "builtIn": "job-description" },
+    { "id": "files", "label": "Files", "builtIn": "files" },
+    { "id": "integrations", "label": "Integrations", "builtIn": "integrations" }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "outputs.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"a48b9c20-3f91-4d85-9b27-27a0d1d6f6b1\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your company (name + 1-line pitch), your ICP (who you sell to), and your pricing stance (model + range + what's not negotiable). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Foundation",
+      "title": "Draft the sales playbook that unblocks the whole team",
+      "blurb": "90-second interview, then a real source-of-truth playbook.",
+      "prompt": "Help me write my sales playbook — ICP, qualification, pricing, objections.",
+      "fullPrompt": "Help me write (or update) my sales playbook. Use the define-sales-playbook skill. Interview me for the pieces you don't already have in config/ — ICP and buying committee, qualification framework, pricing stance, top-5 objections and my best current response, deal stages with exit criteria, and primary first-call goal. Synthesize into sales-playbook.md at your agent root. This is the doc the other four agents read before every task, so be specific — no filler. After saving, tell me which sections still need evidence and what you'd ask next.",
+      "description": "I'll walk you through a short interview and draft the full sales playbook — ICP, buying committee, qualification, pricing stance, objection handbook, deal stages. This is the source of truth the other four agents read before they do anything.",
+      "outcome": "A filled-in sales-playbook.md at my root. SDR, AE, CSM, RevOps unlock the moment this exists.",
+      "skill": "define-sales-playbook"
+    },
+    {
+      "category": "Foundation",
+      "title": "Profile the buying committee for a segment",
+      "blurb": "Champion, economic buyer, blocker, disqualifiers.",
+      "prompt": "Profile the buying committee for {segment} — who signs, who blocks, who budgets.",
+      "fullPrompt": "Profile the buying committee for {segment}. Use the profile-icp-sales skill. Cover: champion (title, pains, motivations), economic buyer (title, what wins them), blocker (who usually kills deals and why), disqualifiers (hard nos), and buying triggers (what makes them start looking now). If my connected CRM has closed-won accounts in {segment}, mine those; otherwise ask me for 2–3 examples and work from there. Save to personas/{segment-slug}.md and log in outputs.json. Every trait cites an account or a call.",
+      "description": "Pull closed-won accounts in {segment} via connected CRM (or work from examples you provide), extract title patterns, pains, buying triggers, and disqualifiers.",
+      "outcome": "A buying-committee persona at personas/{segment-slug}.md — SDR uses it for outreach targeting, AE uses it for discovery question design.",
+      "skill": "profile-icp-sales",
+      "tool": "HubSpot"
+    },
+    {
+      "category": "Coordination",
+      "title": "Mine your last 10 calls for playbook edits",
+      "blurb": "Verbatim pains, objection frequency, win/loss themes.",
+      "prompt": "Mine my last 10 sales calls for playbook edits — pain, objections, win/loss.",
+      "fullPrompt": "Mine my last 10 sales calls from my connected call-recording app (or point me at transcripts you've pasted). Use the mine-call-insights skill. Extract: verbatim pain phrases (min 20 quotes), objection frequency ranked (top 5), win themes, loss themes, any language that contradicts the current playbook. Propose specific playbook edits — which section to update and the before/after. Save to call-insights/{YYYY-MM-DD}.md and log in outputs.json. Don't edit the playbook yourself; hand me the diff and wait for approval.",
+      "description": "Pull N recent call transcripts, extract verbatim customer language, rank objections, surface win/loss themes, propose specific playbook diffs for my approval.",
+      "outcome": "A call-insights report at call-insights/{YYYY-MM-DD}.md with proposed playbook diffs. I'll apply them on approval.",
+      "skill": "mine-call-insights",
+      "tool": "Gong"
+    },
+    {
+      "category": "Coordination",
+      "title": "The Monday sales review in 2 minutes",
+      "blurb": "What closed, what slipped, what to push this week.",
+      "prompt": "Give me the Monday sales review across the team.",
+      "fullPrompt": "Run the Monday sales review. Use the weekly-sales-review skill. Read each other agent's outputs.json (SDR, AE, CSM, RevOps). Summarize: leads added / enriched / drafted, calls held, deals progressed or slipped, customer health changes, and any agent that's been quiet for 2+ weeks. Cross-reference against active deals and the current playbook. End with 3 recommended moves for the week, each addressed to a specific agent with a one-line handoff prompt I can paste. Save to reviews/{YYYY-MM-DD}.md and log in outputs.json.",
+      "description": "Aggregate what each of the four other agents produced last week — leads, calls, deals progressed, renewals touched, pipeline moves. Flag gaps like \"AE hasn't analyzed a call in 2 weeks\".",
+      "outcome": "A weekly review at reviews/{YYYY-MM-DD}.md with recommended next moves per agent.",
+      "skill": "weekly-sales-review"
+    },
+    {
+      "category": "Daily",
+      "title": "Brief me for the day",
+      "blurb": "Today's meetings, approvals queue, priority follow-ups.",
+      "prompt": "Brief me for today.",
+      "fullPrompt": "Give me my morning brief. Use the daily-brief skill. Check my connected calendar for today's meetings (with prep links to any existing AE call-prep artifacts), the approvals queue across every agent (drafts awaiting my sign-off), and the top-3 moves you'd push on today based on yesterday's activity. Keep it tight — 5 sections max. Save to briefs/{YYYY-MM-DD}.md overwriting any prior same-day brief. Log in outputs.json.",
+      "description": "Pull today's calendar, find approvals awaiting sign-off across every agent, surface top-3 moves, and summarize in a one-screen brief.",
+      "outcome": "A daily brief at briefs/{YYYY-MM-DD}.md. Paste the 'top 3' into your task tool and you're moving.",
+      "skill": "daily-brief",
+      "tool": "Google Calendar"
+    }
+  ]
+}

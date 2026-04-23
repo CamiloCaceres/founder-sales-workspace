@@ -1,0 +1,99 @@
+{
+  "id": "revops",
+  "name": "Revenue Operations",
+  "description": "Your Revenue Operations agent. Generates pipeline reports, queries CRM in natural language, scores and routes leads across the inbound queue, sweeps CRM hygiene, scores deal health, and builds weekly forecasts. Reads the Head of Sales playbook before every substantive task. Read-only by default; CRM writes require approval.",
+  "icon": "LineChart",
+  "category": "business",
+  "author": "Houston Founder Sales",
+  "tags": ["sales", "revops", "pipeline", "crm", "forecasting", "scoring"],
+  "tabs": [
+    { "id": "overview", "label": "Overview", "customComponent": "Dashboard" },
+    { "id": "activity", "label": "Activity", "builtIn": "board", "badge": "activity" },
+    { "id": "job-description", "label": "Job Description", "builtIn": "job-description" },
+    { "id": "files", "label": "Files", "builtIn": "files" },
+    { "id": "integrations", "label": "Integrations", "builtIn": "integrations" }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "reports.json": "[]",
+    "queries.json": "[]",
+    "lead-scores.json": "[]",
+    "routing-decisions.json": "[]",
+    "outputs.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"f1a29d47-8b63-4c2e-9f10-3a7c5d8e4b12\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: which CRM or warehouse you use (so I can connect), your deal stages, and your lead-scoring rubric (or I'll hydrate from the Head of Sales playbook). Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Pipeline",
+      "title": "Run the weekly pipeline readout",
+      "blurb": "Narrative rollup — where deals are, what moved.",
+      "prompt": "Run this week's pipeline readout.",
+      "fullPrompt": "Run the weekly pipeline readout. Use the generate-pipeline-report skill. Pull open deals from my connected CRM via Composio, grouped by stage. For each stage: count, ARR, average age, stalled (past stage duration threshold). Narrative section: what moved this week (by deal slug), what slipped, top-3 deals to push. Save to reports/{week}/pipeline.md and log in reports.json + outputs.json.",
+      "description": "Query CRM for open deals, group by stage, compute age + stall, write a narrative report with what moved / what slipped / what to push.",
+      "outcome": "A pipeline report at reports/{week}/pipeline.md. Paste into your Monday investor update.",
+      "skill": "generate-pipeline-report",
+      "tool": "HubSpot"
+    },
+    {
+      "category": "Pipeline",
+      "title": "Build the weekly forecast",
+      "blurb": "Commit / Best / Pipeline — grounded in the CRM.",
+      "prompt": "Build this week's commit / best / pipeline forecast.",
+      "fullPrompt": "Build this week's forecast. Use the run-forecast skill. Apply the playbook's deal-stage exit criteria to each open deal. Classify each as Commit (>80% confidence) / Best (40–80%) / Pipeline (10–40%) / Omit. Roll up ARR per bucket. Compare to last week's forecast — what moved between buckets. Save to forecasts/{YYYY-WW}.md.",
+      "description": "Score each open deal's confidence against playbook exit criteria. Bucket into Commit / Best / Pipeline. Compare to last week.",
+      "outcome": "Forecast at forecasts/{YYYY-WW}.md with the week-over-week deltas.",
+      "skill": "run-forecast"
+    },
+    {
+      "category": "Pipeline",
+      "title": "Score open deals on health",
+      "blurb": "Which deals are slipping and why.",
+      "prompt": "Score open deals on health — which are slipping and why?",
+      "fullPrompt": "Score deal health across open deals. Use the score-deal-health skill. For each open deal, check: time-in-stage vs norm, qualification completeness (MEDDPICC pillars filled vs. missing), last-touch recency, next-step confirmed vs TBD. Return GREEN / YELLOW / RED per deal with drivers. Rank by risk × ARR. Save to deal-health/{YYYY-MM-DD}.md.",
+      "description": "Apply stage-age + qualification-completeness + touch-recency rules. Return per-deal scores and rank by risk × ARR.",
+      "outcome": "Deal-health report at deal-health/{date}.md — top slippers at the top.",
+      "skill": "score-deal-health"
+    },
+    {
+      "category": "Data",
+      "title": "Ask the CRM a question",
+      "blurb": "Natural language over your pipeline data.",
+      "prompt": "What's my pipeline coverage for next quarter by stage?",
+      "fullPrompt": "Answer: '{question}'. Use the query-crm skill. Discover my connected CRM (or warehouse) via `composio search crm` / `composio search warehouse`. Translate the natural-language question into the provider's query model. Run it read-only. Return: the answer in one paragraph + a small table of supporting rows + the exact query (or tool call) you ran. Save to queries/{slug}.md for reuse.",
+      "description": "Translate a natural-language question into a CRM or warehouse query. Read-only. Returns the answer + the query it ran.",
+      "outcome": "A query log at queries/{slug}.md you can re-run later.",
+      "skill": "query-crm",
+      "tool": "HubSpot"
+    },
+    {
+      "category": "Scoring",
+      "title": "Score the whole inbound queue",
+      "blurb": "ICP model across every un-scored lead.",
+      "prompt": "Score the whole inbound queue against my ICP.",
+      "fullPrompt": "Score every un-scored inbound lead. Use the score-lead skill. Pull from the SDR's leads.json AND the connected CRM's new-leads view. Apply the playbook's ICP hard-criteria (must-hit for GREEN) and soft-criteria (rank). For each: GREEN / YELLOW / RED with 2-bullet reasoning. Append to lead-scores.json. Don't mutate the CRM unless I approve the next route step.",
+      "description": "Bulk-score inbound leads against the playbook's ICP. System-wide, not single-shot like SDR's score-icp-fit.",
+      "outcome": "Score rows in lead-scores.json. Feed into route-lead next.",
+      "skill": "score-lead"
+    },
+    {
+      "category": "Scoring",
+      "title": "Route new inbounds",
+      "blurb": "GREEN → AE, YELLOW → SDR, RED → drop.",
+      "prompt": "Route new inbounds — SDR for YELLOW, AE for GREEN, drop RED.",
+      "fullPrompt": "Route scored leads per policy. Use the route-lead skill. Read lead-scores.json (or run score-lead first if stale). Apply the routing policy: GREEN → assign to AE + activity card, YELLOW → assign to SDR + activity card, RED → mark dropped with reason. For each decision, write a row in routing-decisions.json. If CRM routing requires a mutation (owner reassignment), surface the diff for my approval.",
+      "description": "Read scored leads, apply the policy, write routing decisions, and surface any CRM mutations for approval.",
+      "outcome": "Decisions in routing-decisions.json + activity cards in the assigned agent's queue.",
+      "skill": "route-lead"
+    },
+    {
+      "category": "Hygiene",
+      "title": "Sweep the CRM for hygiene",
+      "blurb": "Dupes, missing fields, stage mismatch.",
+      "prompt": "Sweep the CRM for dupes, missing fields, stage mismatch.",
+      "fullPrompt": "Run a CRM hygiene sweep. Use the clean-crm skill. Detect: duplicate records (by email + company), missing required fields per playbook (next-step, champion name, close-date), stage mismatch (deal in 'demo' with no call recorded, deal in 'proposal' with no proposal file). Produce a diff per issue: what to change + source of truth. Do NOT mutate — surface the diff list for my approval. On approval, execute mutations as a batch.",
+      "description": "Scan CRM for dupes / missing fields / stage mismatches. Produce a diff. Mutate only on explicit approval.",
+      "outcome": "A hygiene report at hygiene-sweeps/{date}.md with a diff per issue.",
+      "skill": "clean-crm"
+    }
+  ]
+}

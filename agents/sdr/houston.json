@@ -1,0 +1,123 @@
+{
+  "id": "sdr",
+  "name": "Sales Development Representative",
+  "description": "Your AI Sales Development Representative. Prospects, enriches, researches accounts, scores ICP fit, finds warm paths, drafts research-grounded outreach, generates cold-call scripts, and triages replies. Reads the Head of Sales playbook before every substantive task. Never sends without approval; never closes deals.",
+  "icon": "UserRound",
+  "category": "business",
+  "author": "Houston Founder Sales",
+  "tags": ["sales", "sdr", "bdr", "outbound", "prospecting", "outreach", "enrichment"],
+  "tabs": [
+    { "id": "overview", "label": "Overview", "customComponent": "Dashboard" },
+    { "id": "activity", "label": "Activity", "builtIn": "board", "badge": "activity" },
+    { "id": "job-description", "label": "Job Description", "builtIn": "job-description" },
+    { "id": "files", "label": "Files", "builtIn": "files" },
+    { "id": "integrations", "label": "Integrations", "builtIn": "integrations" }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "leads.json": "[]",
+    "replies.json": "[]",
+    "searches.json": "[]",
+    "outputs.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"c72f8a11-4b3c-4e8f-9d1a-5f7c2b9d3e41\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: your ICP, your product + pitch, and your voice. Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste. After this I can enrich leads, research accounts, find leads, score fit, draft outreach, generate cold scripts, and triage replies.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Prospecting",
+      "title": "Enrich a prospect before you spend effort on them",
+      "blurb": "Firmographics, role, intent signals, warm paths.",
+      "prompt": "Enrich {Jane Doe} at {Acme} — give me everything I need before I reach out.",
+      "fullPrompt": "Enrich {Jane Doe} at {Acme}. Use the enrich-contact skill. Pull firmographics (company size, industry, stage, HQ), buyer role + recent role history, ~3 intent signals (hiring posts, recent funding, public talks, stack changes, product launches), and 1–2 candidate warm paths from my network. Cite every source. If anything's thin, mark UNKNOWN. Save to leads/{slug}/ and update leads.json. Don't sync to the CRM unless I approve.",
+      "description": "Runs enrichment via whatever enrichment provider you've connected (HubSpot, Clay, Apollo, raw LinkedIn scrape). Writes a dossier, updates the leads index.",
+      "outcome": "A full dossier at leads/{slug}/dossier.md. Hand it to `draft-grounded-email` next.",
+      "skill": "enrich-contact",
+      "tool": "HubSpot"
+    },
+    {
+      "category": "Prospecting",
+      "title": "Research an account end-to-end before outbound",
+      "blurb": "News, stack, socials, intent — one brief.",
+      "prompt": "Research {Acme} end-to-end — news, stack, socials, intent signals.",
+      "fullPrompt": "Do full account research on {Acme}. Use the research-account skill. Scrape their site, pull last 90 days of news via my connected web-search, detect their website framework + MarTech stack, summarize their top 3 social channels' recent posts, and flag any intent signals (hiring, funding, stack change, incident, exec move) worth pitching on. Save to leads/{slug}/research.md and update leads.json. Cite every source. If I should invoke `draft-grounded-email` next, tell me the one angle you'd lead with.",
+      "description": "End-to-end account research: site scrape, recent news, tech stack detection, socials scan, intent signals — one brief cited inline.",
+      "outcome": "A research brief at leads/{slug}/research.md. Pipes directly into draft-grounded-email.",
+      "skill": "research-account",
+      "tool": "Firecrawl"
+    },
+    {
+      "category": "Prospecting",
+      "title": "Find 20 leads in a segment I can reach out to this week",
+      "blurb": "Connected sources or public intent signals.",
+      "prompt": "Find 20 leads in {segment} I can reach out to this week.",
+      "fullPrompt": "Find 20 leads in {segment}. Use the find-leads skill. Start from the ICP in my playbook and config/icp.json. Sources to consider (ask which I want if unclear): connected CRM + any closed-won we could expand from, LinkedIn comment threads on relevant posts, funding feeds (Crunchbase), Google Maps for local-biz segments, my own network. For each lead: company, primary contact with LinkedIn, fit score (quick GREEN/YELLOW/RED), and the trigger signal that made me surface it. Save to searches/{slug}.md and log new lead rows in leads.json with `status: new`. Cap at 20.",
+      "description": "Find fresh leads in a segment using connected sources or public intent signals. Scores quick fit per lead and surfaces the trigger signal.",
+      "outcome": "A search result at searches/{slug}.md + up to 20 new rows in leads.json. Hand to enrich-contact next.",
+      "skill": "find-leads",
+      "tool": "LinkedIn"
+    },
+    {
+      "category": "Qualification",
+      "title": "Score a lead against your ICP",
+      "blurb": "GREEN / YELLOW / RED with reasoning.",
+      "prompt": "Score {Jane Doe} at {Acme} against my ICP.",
+      "fullPrompt": "Score {Jane Doe} at {Acme}. Use the score-icp-fit skill. Read `../head-of-sales/sales-playbook.md` and `config/icp.json`. Apply every hard criterion (must-hit for GREEN) and every soft criterion (ranks). Return GREEN / YELLOW / RED with a 3–5 bullet reasoning and the single biggest signal pushing it up or down. Save to leads/{slug}/fit.md and update the lead row in leads.json.",
+      "description": "Check the lead against every ICP criterion in the playbook. Return a single-label score with cited reasoning.",
+      "outcome": "A scorecard at leads/{slug}/fit.md + the fitScore on leads.json. Skip RED, enrich GREEN, validate YELLOW.",
+      "skill": "score-icp-fit"
+    },
+    {
+      "category": "Qualification",
+      "title": "Look at a URL — in-ICP yes/no and the angle to pitch",
+      "blurb": "30-second read on a website.",
+      "prompt": "Look at {url} and tell me if they're in-ICP and what angle to pitch.",
+      "fullPrompt": "Look at {url}. Use the qualify-from-website skill. Scrape the site (homepage, pricing, about), detect the tech-stack and category, and evaluate fit against my playbook's ICP. Return: in-ICP yes / no / maybe, 2–3 concrete signals that drove the call, the single angle I'd lead with in outreach (grounded in what they actually say on the site), and the next step (enrich full lead / skip / refer to {seo-content, growth-paid, etc.}). Save to leads/{slug}/qualify.md.",
+      "description": "Fast website-only qualification. Scrapes the site, checks fit, names the pitch angle.",
+      "outcome": "A qualify note at leads/{slug}/qualify.md. Use it to decide whether to run full enrich-contact next.",
+      "skill": "qualify-from-website",
+      "tool": "Firecrawl"
+    },
+    {
+      "category": "Qualification",
+      "title": "Find warm paths into an account",
+      "blurb": "Mutuals, past colleagues, referenceable customers.",
+      "prompt": "Find warm paths into {Acme} — mutuals, past colleagues, customers I can name.",
+      "fullPrompt": "Find warm paths into {Acme}. Use the find-references skill. Pull: (1) mutual LinkedIn connections between me and the target buyer, (2) past colleagues of mine now at {Acme}, (3) customers of mine that would vouch (from config/reference-customers.json). Rank by warmth (strong / weak) and intro-cost. For each strong path, draft a 2-sentence ask I can paste into LinkedIn or Slack to request the intro. Save to leads/{slug}/warm-paths.md and update leads.json.",
+      "description": "Scan my connected LinkedIn + past-colleagues + referenceable-customer list. Rank warm paths and draft intro-asks for the strong ones.",
+      "outcome": "Warm paths + intro-ask drafts at leads/{slug}/warm-paths.md.",
+      "skill": "find-references",
+      "tool": "LinkedIn"
+    },
+    {
+      "category": "Outreach",
+      "title": "Draft a research-grounded first-touch email",
+      "blurb": "Cited grounding, 3 variants, in your voice.",
+      "prompt": "Draft a first-touch email to {Jane Doe} at {Acme} grounded in real research.",
+      "fullPrompt": "Draft a first-touch email to {Jane Doe} at {Acme}. Use the draft-grounded-email skill. Read any existing leads/{slug}/research.md and leads/{slug}/dossier.md. Ground every claim inline — quote from their site, reference their recent post or talk, name their stack. Produce: subject (8 words max, human), 90–120 word body, and 2 alternate subject lines. Match the voice in config/voice.md. Never invent facts. Save to leads/{slug}/outreach-draft.md and update the lead row.",
+      "description": "Draft a first-touch email with cited grounding from the lead's research file. 3 subject variants. Never invents. Matches your voice.",
+      "outcome": "Draft at leads/{slug}/outreach-draft.md. Approve or edit — I never send.",
+      "skill": "draft-grounded-email",
+      "tool": "Gmail"
+    },
+    {
+      "category": "Outreach",
+      "title": "Generate a 90-second cold-call script",
+      "blurb": "Opener, pattern-interrupt, 2 discovery questions, exit.",
+      "prompt": "Generate a 90-second cold-call script for {Jane Doe} at {Acme}.",
+      "fullPrompt": "Generate a cold-call script for {Jane Doe} at {Acme}. Use the generate-cold-script skill. Structure: (1) 8-second opener naming them + the reason I'm calling (grounded in a real signal from their research), (2) pattern-interrupt phrase, (3) 2 discovery questions from the playbook's qualification framework, (4) soft CTA (time-boxed meeting ask), (5) if-objection branches for the top 2 objections from the playbook. Match the voice in config/voice.md. Save to leads/{slug}/cold-script.md.",
+      "description": "Produce a 60–90-second cold-call script grounded in the lead's research. Opener + discovery questions + objection branches — straight from the playbook.",
+      "outcome": "Script at leads/{slug}/cold-script.md. Print it, dial, don't freestyle.",
+      "skill": "generate-cold-script"
+    },
+    {
+      "category": "Inbox",
+      "title": "Triage my inbox and draft responses",
+      "blurb": "Classify, draft, queue for your approval.",
+      "prompt": "Triage my inbox and draft responses to new replies.",
+      "fullPrompt": "Triage my connected inbox. Use the triage-inbound-reply skill. Pull unread replies to outbound threads from the last 72 hours. For each: classify (INTERESTED / ASKING-QUESTION / OBJECTION / NOT-NOW / NOT-INTERESTED / UNSUBSCRIBE / OUT-OF-OFFICE / WRONG-PERSON), extract any action items, and draft a response in my voice for any non-terminal class. Never send; queue each draft for my approval. Update replies.json and surface an activity card per draft.",
+      "description": "Pull recent inbound replies, classify, draft per-class responses in your voice, queue for approval. Never sends.",
+      "outcome": "Drafts at replies/{id}/draft.md + activity cards in the \"Needs you\" column.",
+      "skill": "triage-inbound-reply",
+      "tool": "Gmail"
+    }
+  ]
+}

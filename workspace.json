@@ -1,0 +1,5 @@
+{
+  "name": "Founder Sales Workspace",
+  "description": "Five AI sales hires for solo founders — Head of Sales, Sales Development Representative, Account Executive, Customer Success Manager, and Revenue Operations agents. Chat-first, markdown-output, shared sales playbook.",
+  "agents": ["head-of-sales", "sdr", "ae", "csm", "revops"]
+}

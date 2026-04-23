@@ -1,0 +1,87 @@
+{
+  "id": "csm",
+  "name": "Customer Success Manager",
+  "description": "Your Customer Success Manager. Plans onboardings, scores customer health, preps Quarterly Business Reviews, surfaces expansion, drafts renewals, and drafts churn saves. Reads the Head of Sales playbook before every substantive task. Never sends to the customer without approval.",
+  "icon": "HeartHandshake",
+  "category": "business",
+  "author": "Houston Founder Sales",
+  "tags": ["sales", "customer-success", "csm", "renewals", "expansion", "onboarding"],
+  "tabs": [
+    { "id": "overview", "label": "Overview", "customComponent": "Dashboard" },
+    { "id": "activity", "label": "Activity", "builtIn": "board", "badge": "activity" },
+    { "id": "job-description", "label": "Job Description", "builtIn": "job-description" },
+    { "id": "files", "label": "Files", "builtIn": "files" },
+    { "id": "integrations", "label": "Integrations", "builtIn": "integrations" }
+  ],
+  "defaultTab": "overview",
+  "agentSeeds": {
+    "customers.json": "[]",
+    "expansion.json": "[]",
+    "outputs.json": "[]",
+    ".houston/activity.json": "[{\"id\":\"e3d4b082-5a61-4c7f-8b92-1a5d6e4c9b03\",\"title\":\"Onboard me — 3 quick questions (~90s)\",\"description\":\"Click this card, then send any message to kick off onboarding. I'll ask three things: how you define 'success' for a customer, the signals you watch for health (usage / engagement / survey), and your typical renewal cycle. Best modality per topic: connected app via Composio (Integrations tab) > file/URL > paste.\",\"status\":\"needs_you\"}]"
+  },
+  "useCases": [
+    {
+      "category": "Onboarding",
+      "title": "Plan the onboarding for a new customer",
+      "blurb": "Kickoff, success metric, time-to-value milestones.",
+      "prompt": "Plan the onboarding for {Acme} — kickoff, success metric, time-to-value.",
+      "fullPrompt": "Plan the onboarding for {Acme}. Use the plan-onboarding skill. Pull their problem statement and success metric from the AE's closed-won artifacts (../ae/deals/{slug}/close-plan.md and proposal). Produce: kickoff agenda, success metric (ours and theirs, explicit), a 90-day time-to-value timeline with milestones, a list of champions + blockers + execs to introduce, and the first-30-day risk list. Save to customers/{slug}/onboarding.md.",
+      "description": "Read AE's close-plan + proposal, build a kickoff agenda, lock the success metric, write a 90-day time-to-value plan with explicit milestones.",
+      "outcome": "An onboarding plan at customers/{slug}/onboarding.md. Share with the customer on the kickoff call.",
+      "skill": "plan-onboarding"
+    },
+    {
+      "category": "Health",
+      "title": "Score a customer's health",
+      "blurb": "GREEN / YELLOW / RED with the top signal.",
+      "prompt": "Score {Acme} — GREEN / YELLOW / RED on health and why.",
+      "fullPrompt": "Score {Acme}'s health. Use the score-customer-health skill. Pull the latest signals we track per config/health-signals.json (usage from connected product-analytics, NPS / CSAT from connected survey, last-touchpoint recency from connected CRM, ticket count from connected support). Return one of GREEN / YELLOW / RED with the top 2–3 signals driving the score. Update customers.json. If RED, trigger draft-churn-save.",
+      "description": "Pull usage, survey, touchpoint-recency, and support signals. Apply the threshold rules. Return the score + top drivers.",
+      "outcome": "Health scorecard at customers/{slug}/health.md + updated row in customers.json.",
+      "skill": "score-customer-health",
+      "tool": "Amplitude"
+    },
+    {
+      "category": "Health",
+      "title": "Prep a QBR",
+      "blurb": "Usage, outcomes, asks, risks — one pack.",
+      "prompt": "Prep a QBR for {Acme}.",
+      "fullPrompt": "Prep a QBR for {Acme}. Use the prep-qbr skill. Pull product-usage for the quarter, the original success metric vs actual (from onboarding.md), any NPS / CSAT in the quarter, open support tickets, and any outreach / touchpoints in the window. Structure: outcomes we delivered, usage + engagement trend, open asks from them, risks we see, next-quarter goal. Save to customers/{slug}/qbrs/{YYYY-MM-DD}.md.",
+      "description": "Pull usage, survey, ticket, and engagement data for the quarter. Build a QBR deck-in-markdown with outcomes, asks, risks, and the next quarterly goal.",
+      "outcome": "A QBR pack at customers/{slug}/qbrs/{date}.md. Forward as a doc or paste into slides.",
+      "skill": "prep-qbr"
+    },
+    {
+      "category": "Revenue",
+      "title": "Surface expansion opportunities",
+      "blurb": "Who in my book is ripe for upsell / cross-sell.",
+      "prompt": "Any expansion opportunities in my book right now?",
+      "fullPrompt": "Surface expansion opportunities across my book. Use the surface-expansion skill. For each GREEN-health customer, check: usage spikes past their current tier, team-size growth, new-product adoption patterns, feature requests that align with an existing SKU. Rank by ARR impact and effort-to-close. Save to expansion.json as opportunity rows and write a summary to customers/{slug}/expansion-{YYYY-MM-DD}.md for any high-signal match. Cite the signal.",
+      "description": "Scan GREEN customers for usage spikes, team growth, feature requests that map to SKUs. Rank by ARR impact.",
+      "outcome": "Ranked expansion opportunities in expansion.json + per-customer expansion briefs.",
+      "skill": "surface-expansion"
+    },
+    {
+      "category": "Revenue",
+      "title": "Draft a churn-save",
+      "blurb": "Targeted save outreach when health flips RED.",
+      "prompt": "Draft the save for {Acme} — they just flipped RED.",
+      "fullPrompt": "Draft the save outreach for {Acme}. Use the draft-churn-save skill. Pull the latest customers/{slug}/health.md for the drivers. Craft a short, non-defensive outreach: acknowledge the specific signal (not generic 'we see you haven't been active'), offer one concrete remedy (unblock a specific feature, schedule a working session, rebalance scope), and propose the next step with a date. Match voice in config/voice.md. Save to customers/{slug}/save-{YYYY-MM-DD}.md.",
+      "description": "Read the health drivers, draft a non-defensive save outreach with a specific remedy and a concrete next step. Your voice, not a template.",
+      "outcome": "Save draft at customers/{slug}/save-{date}.md. Approve or tweak — I never send.",
+      "skill": "draft-churn-save",
+      "tool": "Gmail"
+    },
+    {
+      "category": "Revenue",
+      "title": "Draft a renewal motion",
+      "blurb": "T-{N} weeks — pricing, terms, multi-year option.",
+      "prompt": "Draft the renewal motion for {Acme} — renewal is in {N} weeks.",
+      "fullPrompt": "Draft the renewal motion for {Acme}. Use the draft-renewal skill. Pull the customer's history (onboarding plan, outcomes delivered, QBRs, expansion opportunities, health trend). Structure: outcomes we delivered (cite), next-year ask (renewal + any expansion), pricing reasoning (inside the playbook's pricing stance — flag any exception), multi-year option if applicable, target close date. Save to customers/{slug}/renewal-{YYYY-MM-DD}.md. Never commit pricing outside the playbook.",
+      "description": "Bundle outcomes, expansion, and pricing reasoning into a renewal motion. Stays inside the playbook's pricing stance.",
+      "outcome": "Renewal draft at customers/{slug}/renewal-{date}.md. Approve, then forward.",
+      "skill": "draft-renewal"
+    }
+  ]
+}
