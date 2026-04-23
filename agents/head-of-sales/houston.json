@@ -53,6 +53,17 @@
     },
     {
       "category": "Coordination",
+      "title": "Run the quarterly win-loss review",
+      "blurb": "Top 3 wins + top 3 losses, each with a proposed playbook edit.",
+      "prompt": "Analyze win-loss for {period} — cluster reasons, name the top drivers, propose playbook edits.",
+      "fullPrompt": "Run the win-loss review for {period}. Use the analyze-win-loss skill. Pull closed-won and closed-lost deals from any Composio-connected CRM (plus transcripts from any connected call-recorder), or capture from my memory if no CRM is connected. Cluster by reason, rank by frequency, surface the top 3 win drivers and top 3 loss drivers. For each theme, propose a concrete messaging / pricing / process change the playbook should absorb. Save to win-loss/{YYYY-MM-DD}-review.md and log in outputs.json. Don't edit the playbook yourself — hand me the proposed edits and wait for approval. Minimum sample: 5 wins and 5 losses; if either side is thin, tell me before you run.",
+      "description": "Pull closed-won and closed-lost deals from the connected CRM and call-recorder (or capture from memory if neither is connected), cluster by reason, rank the top 3 drivers per side, and propose concrete messaging / pricing / process edits for the playbook.",
+      "outcome": "A themed win-loss review at win-loss/{YYYY-MM-DD}-review.md with top-3 win drivers, top-3 loss drivers, and proposed playbook edits.",
+      "skill": "analyze-win-loss",
+      "tool": "HubSpot"
+    },
+    {
+      "category": "Coordination",
       "title": "The Monday sales review in 2 minutes",
       "blurb": "What closed, what slipped, what to push this week.",
       "prompt": "Give me the Monday sales review across the team.",

@@ -30,6 +30,9 @@ immediately.
 - `mine-call-insights` — use when you say "mine my last N calls for
   playbook edits" / "what patterns am I missing" — across-N-calls
   synthesis of pains, objections, and win/loss themes.
+- `analyze-win-loss` — use when you say "run win-loss" / "why are we
+  winning / losing" or at quarter close — clusters closed-won and
+  closed-lost deals by reason and proposes playbook edits.
 - `weekly-sales-review` — use when you say "Monday sales review" /
   "weekly readout" — aggregates every agent's outputs and flags
   stalled deals, missed follow-ups, slippage.

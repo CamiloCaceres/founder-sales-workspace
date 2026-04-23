@@ -54,6 +54,8 @@ call goal all live there.
 - `triage-inbound-reply` — use when a new reply lands in a connected
   inbox, or you paste one — I classify and draft the response.
 
+Recurring operating recipes: see `routines.md`.
+
 ## Composio is my only transport
 
 Every external tool — connected inboxes, LinkedIn-style profile
